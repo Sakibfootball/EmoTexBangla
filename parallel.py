@@ -97,47 +97,48 @@ def your_function(_, result_list, lock, fileName):
 if __name__ == "__main__":
     uploaded_file = st.file_uploader("Upload an audio file", type=["wav", "mp3"])
 
-    if st.button("Predict"):
-        manager = multiprocessing.Manager()
-        # Create a list to store thread instances
-        processes = []
-        values = list(range(1, 11))
-        results = manager.list()
+    if uploaded_file is not None:
+        if st.button("Predict"):
+            manager = multiprocessing.Manager()
+            # Create a list to store thread instances
+            processes = []
+            values = list(range(1, 11))
+            results = manager.list()
 
-        lock = manager.Lock()
+            lock = manager.Lock()
 
-        # Spawn 10 threads
-        for _ in range(10):
-            process = multiprocessing.Process(target=your_function, args=(([values[_]]), results, lock, uploaded_file.name))
-            processes.append(process)
-            process.start()
+            # Spawn 10 threads
+            for _ in range(10):
+                process = multiprocessing.Process(target=your_function, args=(([values[_]]), results, lock, uploaded_file.name))
+                processes.append(process)
+                process.start()
 
-        # Wait for all threads to finish
-        for thread in processes:
-            process.join()
+            # Wait for all threads to finish
+            for thread in processes:
+                process.join()
 
-        avg_result = [0, 0, 0, 0, 0]
-        for i in range(len(results)):
-            for j in range(len(results[i])):
-                avg_result[j] += results[i][j]
-        for i in range(len(avg_result)):
-            avg_result[i] /= len(results)
-        print(avg_result)
-        st.text(avg_result)
+            avg_result = [0, 0, 0, 0, 0]
+            for i in range(len(results)):
+                for j in range(len(results[i])):
+                    avg_result[j] += results[i][j]
+            for i in range(len(avg_result)):
+                avg_result[i] /= len(results)
+            print(avg_result)
+            st.text(avg_result)
 
-        angry, fear, happy, neutral, sad = 0, 0, 0, 0, 0
-        if np.array(avg_result).argmax() == 0:
-            print("angry")
-            st.text("Angry")
-        elif np.array(avg_result).argmax() == 1:
-            print("fear")
-            st.text("Fear")
-        elif np.array(avg_result).argmax() == 2:
-            print("happy")
-            st.text("Happy")
-        elif np.array(avg_result).argmax() == 3:
-            print("neutral")
-            st.text("Neutral")
-        elif np.array(avg_result).argmax() == 4:
-            print("sad")
-            st.text("Sad")
+            angry, fear, happy, neutral, sad = 0, 0, 0, 0, 0
+            if np.array(avg_result).argmax() == 0:
+                print("angry")
+                st.text("Angry")
+            elif np.array(avg_result).argmax() == 1:
+                print("fear")
+                st.text("Fear")
+            elif np.array(avg_result).argmax() == 2:
+                print("happy")
+                st.text("Happy")
+            elif np.array(avg_result).argmax() == 3:
+                print("neutral")
+                st.text("Neutral")
+            elif np.array(avg_result).argmax() == 4:
+                print("sad")
+                st.text("Sad")
